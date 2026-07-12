@@ -142,10 +142,13 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
             return (
               <div
                 key={item.id}
-                onClick={(e) => {
+                onClick={() => {
                   if (!isEditing) {
-                    e.stopPropagation();
-                    setActiveDropdown(activeDropdown === item.id ? null : item.id);
+                    if (item.type === 'folder') {
+                      setCurrentFolderId(item.id);
+                    } else {
+                      onOpenNote(item.name);
+                    }
                   }
                 }}
                 className={`group flex flex-col items-start p-5 bg-white border border-gray-200 rounded-2xl transition-all duration-200 text-left h-40 relative ${item.type === 'document' ? 'hover:border-blue-300 hover:shadow-lg cursor-pointer' : 'hover:border-amber-300 hover:shadow-lg cursor-pointer'}`}
@@ -157,43 +160,42 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                     {item.type === 'folder' ? <Folder size={20} /> : <FileText size={20} />}
                   </div>
                   
-                  <div className="relative" ref={activeDropdown === item.id ? dropdownRef : null}>
-                    {activeDropdown === item.id && (
-                      <div className="absolute right-0 top-0 w-36 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
-                        <button 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            if (item.type === 'folder') {
-                              setCurrentFolderId(item.id); 
-                            } else {
-                              onOpenNote(item.name);
-                            }
-                            setActiveDropdown(null); 
-                          }}
-                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
-                        >
-                          {item.type === 'folder' ? <FolderOpen size={16} className="text-blue-500" /> : <FileText size={16} className="text-blue-500" />} View
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setEditFolderName(item.name); setEditingFolderId(item.id); setActiveDropdown(null); }}
-                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
-                        >
-                          <Edit2 size={16} className="text-amber-500" /> Edit
-                        </button>
-                        <button 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            if(window.confirm(`Delete "${item.name}"?`)) {
-                              deleteItem(item.id);
-                            }
-                            setActiveDropdown(null); 
-                          }}
-                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left"
-                        >
-                          <Trash2 size={16} className="text-red-500" /> Delete
-                        </button>
-                      </div>
-                    )}
+                  {/* Hover Options Menu */}
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-sm z-20 gap-1 border border-gray-100 transition-all duration-200">
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (item.type === 'folder') setCurrentFolderId(item.id); 
+                        else onOpenNote(item.name);
+                      }}
+                      className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                      title="View"
+                    >
+                      {item.type === 'folder' ? <FolderOpen size={16} /> : <FileText size={16} />}
+                    </button>
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setEditFolderName(item.name); 
+                        setEditingFolderId(item.id); 
+                      }}
+                      className="p-2 hover:bg-amber-50 rounded-lg text-amber-600 transition-colors"
+                      title="Edit"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if(window.confirm(`Delete "${item.name}"?`)) {
+                          deleteItem(item.id);
+                        }
+                      }}
+                      className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
 
