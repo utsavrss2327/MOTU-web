@@ -8,10 +8,11 @@ interface SidebarProps {
   onClose: () => void;
   activeTab: string;
   onTabChange: (tabName: string) => void;
+  folderState: ReturnType<typeof useFolderState>;
 }
 
-export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: SidebarProps) {
-  const { tree, toggleFolder, isLoaded } = useFolderState();
+export default function Sidebar({ isOpen, onClose, activeTab, onTabChange, folderState }: SidebarProps) {
+  const { tree, toggleFolder, isLoaded } = folderState;
   const { user, logout } = useAuth();
 
   const handleNavClick = (tabName: string) => {

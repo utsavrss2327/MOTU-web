@@ -9,9 +9,11 @@ import { Menu, Save, FileText, Plus, Upload, AlertCircle } from "lucide-react";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginScreen from "@/components/LoginScreen";
+import { useFolderState } from '@/hooks/useFolderState';
 
 function AppContent() {
   const { accessToken } = useAuth();
+  const folderState = useFolderState();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('All Notes');
 
@@ -82,6 +84,7 @@ function AppContent() {
         onClose={() => setIsSidebarOpen(false)} 
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        folderState={folderState}
       />
       
       <main className="flex-1 relative flex flex-col w-full h-full overflow-hidden">
@@ -99,7 +102,7 @@ function AppContent() {
 
         <div className="flex-1 relative h-full w-full overflow-hidden">
           {activeTab === 'All Notes' ? (
-            <AllNotesDashboard onOpenNote={setActiveTab} />
+            <AllNotesDashboard onOpenNote={setActiveTab} folderState={folderState} />
           ) : (
             <Editor 
               key={activeTab}

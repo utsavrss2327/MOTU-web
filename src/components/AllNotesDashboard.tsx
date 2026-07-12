@@ -2,12 +2,8 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useFolderState, TreeItem } from '@/hooks/useFolderState';
 import { FileText, Search, Clock, Folder, MoreVertical, Edit2, Trash2, FolderOpen, ArrowLeft, Plus } from 'lucide-react';
 
-interface Props {
-  onOpenNote: (noteName: string) => void;
-}
-
-export default function AllNotesDashboard({ onOpenNote }: Props) {
-  const { tree, isLoaded, renameItem, deleteItem, addItem } = useFolderState();
+export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenNote: (noteName: string) => void, folderState: ReturnType<typeof useFolderState> }) {
+  const { tree, isLoaded, renameItem, deleteItem, addItem } = folderState;
   const [searchQuery, setSearchQuery] = useState('');
   
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
