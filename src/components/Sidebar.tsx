@@ -29,11 +29,11 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
       
       {/* Sidebar container */}
       <div className={`
-        fixed md:relative z-50 w-64 h-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border-r border-gray-200 dark:border-zinc-800 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
+        fixed md:relative z-50 w-64 h-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border-r border-gray-200 dark:border-zinc-700 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="p-4 py-6 flex items-start justify-between border-b border-gray-200 dark:border-zinc-800">
+        <div className="p-4 py-6 flex items-start justify-between border-b border-gray-200 dark:border-zinc-700">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0 mt-0.5">
               M
@@ -46,12 +46,12 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+            <button className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">
               <Plus size={18} className="text-zinc-600 dark:text-zinc-300" />
             </button>
             <button 
               onClick={onClose}
-              className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors md:hidden"
+              className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors md:hidden"
             >
               <X size={18} className="text-zinc-600 dark:text-zinc-300" />
             </button>
@@ -65,7 +65,7 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
             <input 
               type="text" 
               placeholder="Search notes..." 
-              className="w-full bg-gray-100/50 dark:bg-zinc-800/50 text-sm rounded-lg pl-9 pr-4 py-2 border-none focus:ring-2 focus:ring-blue-500/50 outline-none text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 transition-all"
+              className="w-full bg-gray-100/50 dark:bg-zinc-700/50 text-sm rounded-lg pl-9 pr-4 py-2 border-none focus:ring-2 focus:ring-blue-500/50 outline-none text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 transition-all"
             />
           </div>
         </div>
@@ -106,9 +106,9 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
         </div>
 
         {/* Footer */}
-        <div className="p-4 pb-12 mt-auto border-t border-gray-200 dark:border-zinc-800 space-y-2">
+        <div className="p-4 pb-12 mt-auto border-t border-gray-200 dark:border-zinc-700 space-y-2">
           {user && (
-            <div className="flex items-center gap-3 w-full p-2 text-sm text-zinc-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800/50 rounded-lg mb-2">
+            <div className="flex items-center gap-3 w-full p-2 text-sm text-zinc-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-700/50 rounded-lg mb-2">
               <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full border border-gray-200 dark:border-zinc-700" />
               <div className="flex flex-col text-left overflow-hidden">
                 <span className="font-semibold truncate">{user.name}</span>
@@ -117,7 +117,7 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
             </div>
           )}
           
-          <button className="flex items-center gap-3 w-full p-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+          <button className="flex items-center gap-3 w-full p-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors">
             <Settings size={18} />
             <span>Settings</span>
           </button>
@@ -144,14 +144,14 @@ function TreeRenderer({ nodes, activeTab, onTabChange, toggleFolder }: { nodes: 
             <div className="w-full">
               <button 
                 onClick={() => toggleFolder(node.id)}
-                className="flex items-center gap-2 w-full p-2 rounded-lg text-sm transition-all duration-200 hover:bg-gray-100 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300"
+                className="flex items-center gap-2 w-full p-2 rounded-lg text-sm transition-all duration-200 hover:bg-gray-100 dark:hover:bg-zinc-700/50 text-zinc-700 dark:text-zinc-300"
               >
                 {node.isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 <Folder size={16} className="text-blue-500" />
                 <span>{node.name}</span>
               </button>
               {node.isOpen && node.children && (
-                <div className="pl-4 border-l border-gray-200 dark:border-zinc-800 ml-3 mt-1 space-y-1">
+                <div className="pl-4 border-l border-gray-200 dark:border-zinc-700 ml-3 mt-1 space-y-1">
                   <TreeRenderer nodes={node.children} activeTab={activeTab} onTabChange={onTabChange} toggleFolder={toggleFolder} />
                 </div>
               )}
@@ -174,7 +174,7 @@ function NavItem({ icon, label, active = false, color = "text-zinc-600 dark:text
   return (
     <button 
       onClick={onClick}
-      className={`flex items-center gap-3 w-full p-2 rounded-lg text-sm transition-all duration-200 ${active ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium' : 'hover:bg-gray-100 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300'}`}
+      className={`flex items-center gap-3 w-full p-2 rounded-lg text-sm transition-all duration-200 ${active ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium' : 'hover:bg-gray-100 dark:hover:bg-zinc-700/50 text-zinc-700 dark:text-zinc-300'}`}
     >
       <div className={active ? 'text-blue-600 dark:text-blue-400' : color}>
         {icon}
