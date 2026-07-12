@@ -14,19 +14,10 @@ function AppContent() {
   const { accessToken } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('All Notes');
-  const [tabsWithDocuments, setTabsWithDocuments] = useState<string[]>(['Current Work']);
-
-  const hasDocuments = tabsWithDocuments.includes(activeTab);
 
   const [uploadedData, setUploadedData] = useState<any>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-
-  const handleCreateDocument = () => {
-    if (!tabsWithDocuments.includes(activeTab)) {
-      setTabsWithDocuments([...tabsWithDocuments, activeTab]);
-    }
-  };
 
   const handleUploadDocument = () => {
     const input = document.createElement('input');
@@ -64,17 +55,11 @@ function AppContent() {
           }
           
           setUploadedImages(images);
-          if (!tabsWithDocuments.includes(activeTab)) {
-            setTabsWithDocuments([...tabsWithDocuments, activeTab]);
-          }
         } else {
           // Standard tldr load
           const text = await file.text();
           const json = JSON.parse(text);
           setUploadedData(json);
-          if (!tabsWithDocuments.includes(activeTab)) {
-            setTabsWithDocuments([...tabsWithDocuments, activeTab]);
-          }
         }
       } catch (err) {
         console.error("Failed to parse uploaded file", err);
@@ -115,7 +100,7 @@ function AppContent() {
         <div className="flex-1 relative h-full w-full overflow-hidden">
           {activeTab === 'All Notes' ? (
             <AllNotesDashboard onOpenNote={setActiveTab} />
-          ) : hasDocuments ? (
+          ) : (
             <Editor 
               key={activeTab}
               tabName={activeTab} 
@@ -126,40 +111,6 @@ function AppContent() {
                 setUploadedImages([]);
               }} 
             />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 p-6 overflow-y-auto">
-              
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl max-w-md w-full mb-8 text-sm flex items-start gap-3 shadow-sm">
-                <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-semibold block mb-1">Data Safety Warning</strong>
-                  Notes are stored locally in this browser. If you clear your browser cache, your notes will be permanently deleted. Export frequently!
-                </div>
-              </div>
-
-              <FileText size={64} className="mb-4 opacity-50" />
-              <h3 className="text-xl font-medium text-zinc-700 mb-2">No documents</h3>
-              <p className="text-sm max-w-sm text-center text-zinc-600 mb-8">
-                There are currently no documents in {activeTab}. Create a new document to get started.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                <button 
-                  onClick={handleCreateDocument}
-                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <Plus size={18} />
-                  <span>New Document</span>
-                </button>
-                <button 
-                  onClick={handleUploadDocument}
-                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-zinc-700 bg-white hover:bg-gray-50 rounded-xl shadow-sm border border-gray-300 transition-all hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <Upload size={18} />
-                  <span>Upload Document</span>
-                </button>
-              </div>
-            </div>
           )}
         </div>
       </main>
