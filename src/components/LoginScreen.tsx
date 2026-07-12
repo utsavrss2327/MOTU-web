@@ -46,14 +46,14 @@ export default function LoginScreen() {
 
   return (
     <div className="flex h-[100dvh] w-screen items-center justify-center bg-[#E6D7B9] font-sans text-zinc-900">
-      <div className="w-full max-w-md p-8 bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-[#D2C3A3]/30 text-center relative overflow-hidden">
+      <div className="w-full max-w-md p-8 bg-white/30 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/50 text-center relative overflow-hidden">
         
         {/* Decorative background blurs */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-24 -left-24 w-48 h-48 bg-amber-600/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-orange-600/10 rounded-full blur-3xl" />
         
         <div className="relative z-10">
-          <div className="mx-auto w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <div className="mx-auto w-16 h-16 bg-white/50 text-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-white/60">
             <Sparkles size={32} />
           </div>
           
