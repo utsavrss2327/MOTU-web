@@ -168,9 +168,17 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
     URL.revokeObjectURL(url);
   };
 
-  const components = React.useMemo(() => ({
-    SharePanel: () => (
-      <div className="flex items-center gap-2 pointer-events-auto" style={{ marginRight: '8px' }}>
+  return (
+    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
+      <TldrawErrorBoundary>
+        <Tldraw 
+          persistenceKey={`freenotes-${tabName}`}
+          onMount={handleMount}
+        />
+      </TldrawErrorBoundary>
+      
+      {/* Floating Custom Action Buttons - Positioned Top Center */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[50] pointer-events-auto flex items-center gap-2 flex-wrap justify-center w-full max-w-full px-2">
         {roomId && (
           <div className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-sm font-medium shadow-sm border ${
             isConnected 
@@ -183,21 +191,21 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
         )}
 
         <button 
-          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-blue-500/20"
           onClick={handleSave}
           title="Save Notes"
         >
-          <Save size={16} className="text-blue-600 dark:text-blue-400" />
+          <Save size={16} />
           <span className="hidden sm:inline">Save Notes</span>
         </button>
 
         <button 
-          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-emerald-500/20"
           onClick={handleDriveSync}
           disabled={isSyncing}
           title="Sync to Drive"
         >
-          <Cloud size={16} className="text-emerald-600 dark:text-emerald-400" />
+          <Cloud size={16} />
           <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync to Drive'}</span>
         </button>
 
@@ -208,25 +216,13 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
             navigator.clipboard.writeText(url);
             alert(`Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`);
           }}
-          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
           title="Share"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600 dark:text-indigo-400"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
-    )
-  }), [roomId, isConnected, isSyncing, handleSave, handleDriveSync]);
-
-  return (
-    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
-      <TldrawErrorBoundary>
-        <Tldraw 
-          persistenceKey={`freenotes-${tabName}`}
-          onMount={handleMount}
-          components={components}
-        />
-      </TldrawErrorBoundary>
     </div>
   );
 }
