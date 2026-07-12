@@ -26,13 +26,4 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Hide tldraw watermark */
-.tl-watermark_logo,
-.tl-watermark,
-[class*="watermark"],
-a[href*="tldraw.dev"] {
-  display: none !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
+
