@@ -54,23 +54,11 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
       return { currentFolder: foundFolder, allItems: children };
     }
 
-    // Root view: Flatten all except library and folders
-    const items: TreeItem[] = [];
-    const traverse = (nodes: TreeItem[]) => {
-      for (const node of nodes) {
-        if (!items.some(d => d.name === node.name)) {
-          items.push(node);
-        }
-        if (node.children) {
-          traverse(node.children);
-        }
-      }
-    };
-    traverse(tree);
+    // Root view: Return direct children of the 'folders' node (where custom content lives)
+    const foldersNode = tree.find(node => node.id === 'folders');
     return { 
       currentFolder: null, 
-      // Filter out the internal root folders 'library' and 'folders'
-      allItems: items.filter(item => item.id !== 'library' && item.id !== 'folders') 
+      allItems: foldersNode?.children || []
     };
   }, [tree, currentFolderId]);
   
