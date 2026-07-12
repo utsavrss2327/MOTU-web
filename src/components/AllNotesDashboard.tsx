@@ -175,29 +175,33 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                     >
                       {item.type === 'folder' ? <FolderOpen size={16} /> : <FileText size={16} />}
                     </button>
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        setEditFolderName(item.name); 
-                        setEditingFolderId(item.id); 
-                      }}
-                      className="p-2 hover:bg-amber-50 rounded-lg text-amber-600 transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        if(window.confirm(`Delete "${item.name}"?`)) {
-                          deleteItem(item.id);
-                        }
-                      }}
-                      className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {!item.isStatic && (
+                      <>
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setEditFolderName(item.name); 
+                            setEditingFolderId(item.id); 
+                          }}
+                          className="p-2 hover:bg-amber-50 rounded-lg text-amber-600 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if(window.confirm(`Delete "${item.name}"?`)) {
+                              deleteItem(item.id);
+                            }
+                          }}
+                          className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 

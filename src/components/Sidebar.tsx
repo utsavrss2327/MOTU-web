@@ -243,18 +243,26 @@ function TreeRenderer({
                   )}
                 </button>
                 <div className="opacity-0 group-hover:opacity-100 flex items-center pr-2 shrink-0">
-                   <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'document'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Note">
-                     <FileText size={14} />
-                   </button>
-                   <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'folder'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Folder">
-                     <Folder size={14} />
-                   </button>
-                   <button onClick={(e) => { e.stopPropagation(); setEditName(node.name); setEditingId(node.id); }} className="p-1 hover:bg-gray-300 rounded text-blue-500 transition-colors" title="Rename Folder">
-                     <Edit2 size={14} />
-                   </button>
-                   <button onClick={(e) => { e.stopPropagation(); if(window.confirm(`Are you sure you want to delete "${node.name}"? This will also delete all its contents.`)) onDelete(node.id); }} className="p-1 hover:bg-red-200 rounded text-red-500 transition-colors" title="Delete Folder">
-                     <Trash2 size={14} />
-                   </button>
+                   {!(node.isStatic && node.id === 'library') && (
+                     <>
+                       <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'document'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Note">
+                         <FileText size={14} />
+                       </button>
+                       <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'folder'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Folder">
+                         <Folder size={14} />
+                       </button>
+                     </>
+                   )}
+                   {!node.isStatic && (
+                     <>
+                       <button onClick={(e) => { e.stopPropagation(); setEditName(node.name); setEditingId(node.id); }} className="p-1 hover:bg-gray-300 rounded text-blue-500 transition-colors" title="Rename Folder">
+                         <Edit2 size={14} />
+                       </button>
+                       <button onClick={(e) => { e.stopPropagation(); if(window.confirm(`Are you sure you want to delete "${node.name}"? This will also delete all its contents.`)) onDelete(node.id); }} className="p-1 hover:bg-red-200 rounded text-red-500 transition-colors" title="Delete Folder">
+                         <Trash2 size={14} />
+                       </button>
+                     </>
+                   )}
                 </div>
               </div>
               {node.isOpen && node.children && (

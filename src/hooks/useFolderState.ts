@@ -8,26 +8,31 @@ export interface TreeItem {
   type: ItemType;
   children?: TreeItem[];
   isOpen?: boolean;
+  isStatic?: boolean;
 }
 
-const defaultTree: TreeItem[] = [
-  {
-    id: 'library',
-    name: 'Library',
-    type: 'folder',
-    isOpen: true,
-    children: [
-      { id: 'All Notes', name: 'All Notes', type: 'document' }
-    ]
-  },
-  {
-    id: 'folders',
-    name: 'Folders',
-    type: 'folder',
-    isOpen: true,
-    children: []
-  }
-];
+const defaultLibraryNode: TreeItem = {
+  id: 'library',
+  name: 'Library',
+  type: 'folder',
+  isOpen: true,
+  isStatic: true,
+  children: [
+    { id: 'Current Work', name: 'Current Work', type: 'document', isStatic: true },
+    { id: 'All Notes', name: 'All Notes', type: 'document', isStatic: true }
+  ]
+};
+
+const defaultFoldersNode: TreeItem = {
+  id: 'folders',
+  name: 'Folders',
+  type: 'folder',
+  isOpen: true,
+  isStatic: true,
+  children: []
+};
+
+const defaultTree: TreeItem[] = [defaultLibraryNode, defaultFoldersNode];
 
 export function useFolderState() {
   const [tree, setTree] = useState<TreeItem[]>([]);
@@ -37,7 +42,12 @@ export function useFolderState() {
     const saved = localStorage.getItem('freenotes-folders');
     if (saved) {
       try {
-        setTree(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as TreeItem[];
+        // Extract the user's custom folders node, enforce it is static (so root can't be deleted)
+        const userFoldersNode = parsed.find(n => n.id === 'folders') || defaultFoldersNode;
+        userFoldersNode.isStatic = true;
+        // Combine a fresh pristine Library node with their custom Folders node
+        setTree([defaultLibraryNode, userFoldersNode]);
       } catch (e) {
         setTree(defaultTree);
       }
