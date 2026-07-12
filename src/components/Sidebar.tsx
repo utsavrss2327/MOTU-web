@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Book, Folder, FileText, Settings, Plus, Star, Search, X, ChevronRight, ChevronDown, LogOut } from 'lucide-react';
+import { Book, Folder, FileText, Settings, Plus, Star, Search, X, ChevronRight, ChevronDown, LogOut, Edit2, Trash2 } from 'lucide-react';
 import { useFolderState, TreeItem } from '@/hooks/useFolderState';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,7 +11,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: SidebarProps) {
-  const { tree, toggleFolder, addItem, isLoaded } = useFolderState();
+  const { tree, toggleFolder, addItem, renameItem, deleteItem, isLoaded } = useFolderState();
   const { user, logout } = useAuth();
 
   const handleNavClick = (tabName: string) => {
@@ -139,6 +139,8 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
                         onTabChange={handleNavClick} 
                         toggleFolder={toggleFolder} 
                         onCreate={(parentId, type) => setCreateState({ parentId, type })}
+                        onRename={renameItem}
+                        onDelete={deleteItem}
                       />
                     </nav>
                   )}
@@ -185,34 +187,79 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
   );
 }
 
-function TreeRenderer({ nodes, activeTab, onTabChange, toggleFolder, onCreate }: { nodes: TreeItem[], activeTab: string, onTabChange: (id: string) => void, toggleFolder: (id: string) => void, onCreate: (parentId: string, type: 'folder' | 'document') => void }) {
+function TreeRenderer({ 
+  nodes, activeTab, onTabChange, toggleFolder, onCreate, onRename, onDelete 
+}: { 
+  nodes: TreeItem[], 
+  activeTab: string, 
+  onTabChange: (id: string) => void, 
+  toggleFolder: (id: string) => void, 
+  onCreate: (parentId: string, type: 'folder' | 'document') => void,
+  onRename: (id: string, name: string) => void,
+  onDelete: (id: string) => void
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+
   return (
     <>
       {nodes.map(node => (
         <div key={node.id} className="w-full">
           {node.type === 'folder' ? (
             <div className="w-full group">
-              <div className="flex items-center w-full rounded-lg transition-all duration-200 hover:bg-gray-200/60 text-zinc-700">
+              <div className="flex items-center justify-between w-full rounded-lg transition-all duration-200 hover:bg-gray-200/60 text-zinc-700">
                 <button 
                   onClick={() => toggleFolder(node.id)}
-                  className="flex flex-1 items-center gap-2 p-2"
+                  className="flex flex-1 items-center gap-2 p-2 overflow-hidden"
                 >
-                  {node.isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  <Folder size={16} className="text-blue-500" />
-                  <span>{node.name}</span>
+                  {node.isOpen ? <ChevronDown size={14} className="shrink-0" /> : <ChevronRight size={14} className="shrink-0" />}
+                  <Folder size={16} className="text-blue-500 shrink-0" />
+                  {editingId === node.id ? (
+                    <input
+                      autoFocus
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          if (editName.trim()) {
+                            onRename(node.id, editName.trim());
+                          }
+                          setEditingId(null);
+                        } else if (e.key === 'Escape') {
+                          setEditingId(null);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (editName.trim()) {
+                          onRename(node.id, editName.trim());
+                        }
+                        setEditingId(null);
+                      }}
+                      onClick={e => e.stopPropagation()}
+                      className="bg-white px-1 text-sm rounded outline-none border border-blue-400 w-full"
+                    />
+                  ) : (
+                    <span className="truncate">{node.name}</span>
+                  )}
                 </button>
-                <div className="opacity-0 group-hover:opacity-100 flex items-center pr-2 gap-1">
+                <div className="opacity-0 group-hover:opacity-100 flex items-center pr-2 shrink-0">
                    <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'document'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Note">
                      <FileText size={14} />
                    </button>
                    <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'folder'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Folder">
                      <Folder size={14} />
                    </button>
+                   <button onClick={(e) => { e.stopPropagation(); setEditName(node.name); setEditingId(node.id); }} className="p-1 hover:bg-gray-300 rounded text-blue-500 transition-colors" title="Rename Folder">
+                     <Edit2 size={14} />
+                   </button>
+                   <button onClick={(e) => { e.stopPropagation(); if(window.confirm(`Are you sure you want to delete "${node.name}"? This will also delete all its contents.`)) onDelete(node.id); }} className="p-1 hover:bg-red-200 rounded text-red-500 transition-colors" title="Delete Folder">
+                     <Trash2 size={14} />
+                   </button>
                 </div>
               </div>
               {node.isOpen && node.children && (
                 <div className="pl-4 border-l border-gray-300 ml-3 mt-1 space-y-1">
-                  <TreeRenderer nodes={node.children} activeTab={activeTab} onTabChange={onTabChange} toggleFolder={toggleFolder} onCreate={onCreate} />
+                  <TreeRenderer nodes={node.children} activeTab={activeTab} onTabChange={onTabChange} toggleFolder={toggleFolder} onCreate={onCreate} onRename={onRename} onDelete={onDelete} />
                 </div>
               )}
             </div>

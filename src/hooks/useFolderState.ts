@@ -93,5 +93,34 @@ export function useFolderState() {
     setTree(addInTree(tree));
   };
 
-  return { tree, toggleFolder, addItem, isLoaded };
+  const renameItem = (id: string, newName: string) => {
+    const renameInTree = (nodes: TreeItem[]): TreeItem[] => {
+      return nodes.map(node => {
+        if (node.id === id) {
+          return { ...node, name: newName };
+        }
+        if (node.children) {
+          return { ...node, children: renameInTree(node.children) };
+        }
+        return node;
+      });
+    };
+    setTree(renameInTree(tree));
+  };
+
+  const deleteItem = (id: string) => {
+    const deleteInTree = (nodes: TreeItem[]): TreeItem[] => {
+      return nodes
+        .filter(node => node.id !== id)
+        .map(node => {
+          if (node.children) {
+            return { ...node, children: deleteInTree(node.children) };
+          }
+          return node;
+        });
+    };
+    setTree(deleteInTree(tree));
+  };
+
+  return { tree, toggleFolder, addItem, renameItem, deleteItem, isLoaded };
 }
