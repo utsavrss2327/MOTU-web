@@ -14,14 +14,15 @@ export async function uploadToDrive(fileName: string, jsonContent: any, accessTo
   };
 
   const boundary = '-------314159265358979323846';
-  const delimiter = "\r\n--" + boundary + "\r\n";
+  const delimiter = "--" + boundary + "\r\n";
+  const inner_delimiter = "\r\n--" + boundary + "\r\n";
   const close_delim = "\r\n--" + boundary + "--";
 
   const multipartRequestBody =
     delimiter +
-    'Content-Type: application/json\r\n\r\n' +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
     JSON.stringify(metadata) +
-    delimiter +
+    inner_delimiter +
     'Content-Type: application/json\r\n\r\n' +
     JSON.stringify(jsonContent) +
     close_delim;
@@ -36,7 +37,11 @@ export async function uploadToDrive(fileName: string, jsonContent: any, accessTo
   });
 
   if (!response.ok) {
-    throw new Error('Failed to upload to Google Drive');
+    let errText = '';
+    try {
+      errText = await response.text();
+    } catch (e) {}
+    throw new Error(`Drive API Error (${response.status}): ${errText}`);
   }
 
   return response.json();

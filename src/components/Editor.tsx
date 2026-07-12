@@ -147,9 +147,9 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
       
       await uploadToDrive(tabName, snapshot, accessToken);
       alert('Successfully synced to Google Drive!');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Drive sync failed', err);
-      alert('Failed to sync to Google Drive. Check console for details.');
+      alert(`Failed to sync to Google Drive. Check console for details.\n\nError: ${err.message}`);
     } finally {
       setIsSyncing(false);
     }
