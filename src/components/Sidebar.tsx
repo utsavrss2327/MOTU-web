@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book, Folder, FileText, Settings, Plus, Star, Search, X, ChevronRight, ChevronDown, LogOut } from 'lucide-react';
 import { useFolderState, TreeItem } from '@/hooks/useFolderState';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,12 +11,29 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: SidebarProps) {
-  const { tree, toggleFolder, isLoaded } = useFolderState();
+  const { tree, toggleFolder, addItem, isLoaded } = useFolderState();
   const { user, logout } = useAuth();
 
   const handleNavClick = (tabName: string) => {
     onTabChange(tabName);
     onClose();
+  };
+
+  const [createState, setCreateState] = useState<{type: 'folder' | 'document', parentId: string} | null>(null);
+  const [newItemName, setNewItemName] = useState('');
+
+  const handleCreate = () => {
+    if (newItemName.trim() && createState) {
+      addItem(createState.parentId, newItemName.trim(), createState.type);
+      if (createState.type === 'document') {
+        onTabChange(newItemName.trim());
+        if (window.innerWidth < 768) {
+          onClose();
+        }
+      }
+    }
+    setCreateState(null);
+    setNewItemName('');
   };
 
   return (
@@ -46,7 +63,11 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button className="p-1.5 rounded-md hover:bg-gray-200 transition-colors">
+            <button 
+              onClick={() => setCreateState({ type: 'folder', parentId: 'folders' })}
+              className="p-1.5 rounded-md hover:bg-gray-200 transition-colors"
+              title="New Subject Folder"
+            >
               <Plus size={18} className="text-zinc-600" />
             </button>
             <button 
@@ -72,6 +93,34 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-3 space-y-6">
+          {createState && (
+            <div className="flex items-center gap-2 p-2 bg-white rounded-lg mb-4 shadow-sm border border-blue-200">
+              {createState.type === 'folder' ? <Folder size={16} className="text-blue-500" /> : <FileText size={16} className="text-zinc-500" />}
+              <input
+                autoFocus
+                type="text"
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCreate();
+                  } else if (e.key === 'Escape') {
+                    setCreateState(null);
+                    setNewItemName('');
+                  }
+                }}
+                className="w-full bg-transparent text-sm text-zinc-800 outline-none"
+                placeholder={`New ${createState.type}...`}
+              />
+              <button onClick={handleCreate} className="p-1 hover:bg-gray-100 rounded text-blue-600">
+                <Plus size={16} />
+              </button>
+              <button onClick={() => { setCreateState(null); setNewItemName(''); }} className="p-1 hover:bg-gray-100 rounded text-red-500">
+                <X size={16} />
+              </button>
+            </div>
+          )}
+          
           {isLoaded && tree.map(node => (
             <div key={node.id}>
               {node.type === 'folder' ? (
@@ -89,6 +138,7 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
                         activeTab={activeTab} 
                         onTabChange={handleNavClick} 
                         toggleFolder={toggleFolder} 
+                        onCreate={(parentId, type) => setCreateState({ parentId, type })}
                       />
                     </nav>
                   )}
@@ -135,24 +185,34 @@ export default function Sidebar({ isOpen, onClose, activeTab, onTabChange }: Sid
   );
 }
 
-function TreeRenderer({ nodes, activeTab, onTabChange, toggleFolder }: { nodes: TreeItem[], activeTab: string, onTabChange: (id: string) => void, toggleFolder: (id: string) => void }) {
+function TreeRenderer({ nodes, activeTab, onTabChange, toggleFolder, onCreate }: { nodes: TreeItem[], activeTab: string, onTabChange: (id: string) => void, toggleFolder: (id: string) => void, onCreate: (parentId: string, type: 'folder' | 'document') => void }) {
   return (
     <>
       {nodes.map(node => (
         <div key={node.id} className="w-full">
           {node.type === 'folder' ? (
-            <div className="w-full">
-              <button 
-                onClick={() => toggleFolder(node.id)}
-                className="flex items-center gap-2 w-full p-2 rounded-lg text-sm transition-all duration-200 hover:bg-gray-200/60 text-zinc-700"
-              >
-                {node.isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                <Folder size={16} className="text-blue-500" />
-                <span>{node.name}</span>
-              </button>
+            <div className="w-full group">
+              <div className="flex items-center w-full rounded-lg transition-all duration-200 hover:bg-gray-200/60 text-zinc-700">
+                <button 
+                  onClick={() => toggleFolder(node.id)}
+                  className="flex flex-1 items-center gap-2 p-2"
+                >
+                  {node.isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  <Folder size={16} className="text-blue-500" />
+                  <span>{node.name}</span>
+                </button>
+                <div className="opacity-0 group-hover:opacity-100 flex items-center pr-2 gap-1">
+                   <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'document'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Note">
+                     <FileText size={14} />
+                   </button>
+                   <button onClick={(e) => { e.stopPropagation(); onCreate(node.id, 'folder'); if (!node.isOpen) toggleFolder(node.id); }} className="p-1 hover:bg-gray-300 rounded text-zinc-500 transition-colors" title="New Folder">
+                     <Folder size={14} />
+                   </button>
+                </div>
+              </div>
               {node.isOpen && node.children && (
                 <div className="pl-4 border-l border-gray-300 ml-3 mt-1 space-y-1">
-                  <TreeRenderer nodes={node.children} activeTab={activeTab} onTabChange={onTabChange} toggleFolder={toggleFolder} />
+                  <TreeRenderer nodes={node.children} activeTab={activeTab} onTabChange={onTabChange} toggleFolder={toggleFolder} onCreate={onCreate} />
                 </div>
               )}
             </div>
