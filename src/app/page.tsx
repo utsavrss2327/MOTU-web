@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import dynamic from 'next/dynamic';
 const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
+import AllNotesDashboard from "@/components/AllNotesDashboard";
 import { Menu, Save, FileText, Plus, Upload, AlertCircle } from "lucide-react";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -112,7 +113,9 @@ function AppContent() {
         </header>
 
         <div className="flex-1 relative h-full w-full overflow-hidden">
-          {hasDocuments ? (
+          {activeTab === 'All Notes' ? (
+            <AllNotesDashboard onOpenNote={setActiveTab} />
+          ) : hasDocuments ? (
             <Editor 
               key={activeTab}
               tabName={activeTab} 
