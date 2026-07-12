@@ -183,21 +183,21 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
         )}
 
         <button 
-          className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-blue-500/20"
+          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
           onClick={handleSave}
           title="Save Notes"
         >
-          <Save size={16} />
+          <Save size={16} className="text-blue-600 dark:text-blue-400" />
           <span className="hidden sm:inline">Save Notes</span>
         </button>
 
         <button 
-          className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-emerald-500/20"
+          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
           onClick={handleDriveSync}
           disabled={isSyncing}
           title="Sync to Drive"
         >
-          <Cloud size={16} />
+          <Cloud size={16} className="text-emerald-600 dark:text-emerald-400" />
           <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync to Drive'}</span>
         </button>
 
@@ -208,10 +208,10 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
             navigator.clipboard.writeText(url);
             alert(`Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`);
           }}
-          className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
+          className="flex items-center justify-center gap-2 px-3 h-[40px] bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg text-sm font-medium transition-colors border border-gray-200 dark:border-zinc-700 shadow-sm pointer-events-auto"
           title="Share"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600 dark:text-indigo-400"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
