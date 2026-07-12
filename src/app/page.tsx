@@ -98,16 +98,16 @@ function AppContent() {
         onTabChange={setActiveTab}
       />
       
-      <main className="flex-1 relative flex flex-col bg-zinc-50 dark:bg-zinc-900/30 w-full h-full overflow-hidden">
+      <main className="flex-1 relative flex flex-col w-full h-full overflow-hidden">
         {/* Mobile Header - Only visible on small screens */}
-        <header className="md:hidden flex items-center justify-between p-3 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 shrink-0 z-40">
+        <header className="md:hidden flex items-center justify-between p-3 bg-gray-100 border-b border-gray-300 shrink-0 z-40">
           <button 
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 text-zinc-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+            className="p-2 text-zinc-700 hover:bg-gray-200 rounded-lg transition-colors"
           >
             <Menu size={20} />
           </button>
-          <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">{activeTab}</span>
+          <span className="font-semibold text-sm text-zinc-800">{activeTab}</span>
           <div className="w-10" /> {/* Spacer to center the title */}
         </header>
 
@@ -124,9 +124,9 @@ function AppContent() {
               }} 
             />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 p-6 overflow-y-auto">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 p-6 overflow-y-auto">
               
-              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 p-4 rounded-xl max-w-md w-full mb-8 text-sm flex items-start gap-3">
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl max-w-md w-full mb-8 text-sm flex items-start gap-3 shadow-sm">
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <div>
                   <strong className="font-semibold block mb-1">Data Safety Warning</strong>
@@ -135,8 +135,8 @@ function AppContent() {
               </div>
 
               <FileText size={64} className="mb-4 opacity-50" />
-              <h3 className="text-xl font-medium text-zinc-600 dark:text-zinc-300 mb-2">No documents</h3>
-              <p className="text-sm max-w-sm text-center mb-8">
+              <h3 className="text-xl font-medium text-zinc-700 mb-2">No documents</h3>
+              <p className="text-sm max-w-sm text-center text-zinc-600 mb-8">
                 There are currently no documents in {activeTab}. Create a new document to get started.
               </p>
               
@@ -150,7 +150,7 @@ function AppContent() {
                 </button>
                 <button 
                   onClick={handleUploadDocument}
-                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-zinc-700 bg-white hover:bg-gray-50 rounded-xl shadow-sm border border-gray-300 transition-all hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <Upload size={18} />
                   <span>Upload Document</span>
