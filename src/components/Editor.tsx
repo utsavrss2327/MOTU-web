@@ -168,17 +168,9 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
-      <TldrawErrorBoundary>
-        <Tldraw 
-          persistenceKey={`freenotes-${tabName}`}
-          onMount={handleMount}
-        />
-      </TldrawErrorBoundary>
-      
-      {/* Floating Custom Action Buttons - Responsive */}
-      <div className="absolute top-14 sm:top-4 right-2 sm:right-4 sm:left-auto z-[50] pointer-events-auto flex items-center gap-2">
+  const components = React.useMemo(() => ({
+    SharePanel: () => (
+      <div className="flex items-center gap-2 pointer-events-auto" style={{ marginRight: '8px' }}>
         {roomId && (
           <div className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-sm font-medium shadow-sm border ${
             isConnected 
@@ -211,8 +203,8 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
 
         <button 
           onClick={() => {
-            const roomId = `room-${Math.random().toString(36).substr(2, 9)}`;
-            const url = `${window.location.origin}?room=${roomId}`;
+            const newRoomId = `room-${Math.random().toString(36).substr(2, 9)}`;
+            const url = `${window.location.origin}?room=${newRoomId}`;
             navigator.clipboard.writeText(url);
             alert(`Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`);
           }}
@@ -223,6 +215,18 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
+    )
+  }), [roomId, isConnected, isSyncing, handleSave, handleDriveSync]);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
+      <TldrawErrorBoundary>
+        <Tldraw 
+          persistenceKey={`freenotes-${tabName}`}
+          onMount={handleMount}
+          components={components}
+        />
+      </TldrawErrorBoundary>
     </div>
   );
 }
