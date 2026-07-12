@@ -163,8 +163,14 @@ function AppContent() {
 }
 
 export default function Home() {
+  // Use the environment variable if available, otherwise fallback to the hardcoded Client ID
+  // to prevent Vercel environment variable configuration issues.
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== 'dummy-client-id' 
+    ? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID 
+    : "850959529703-77eol7g1lm2o3drn1ad0lsaqmras9ivn.apps.googleusercontent.com";
+
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy-client-id'}>
+    <GoogleOAuthProvider clientId={clientId}>
       <AuthProvider>
         <AppContent />
       </AuthProvider>
