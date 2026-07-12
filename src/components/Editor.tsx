@@ -1,7 +1,6 @@
 'use client';
 
 import { Tldraw } from 'tldraw';
-import 'tldraw/tldraw.css';
 import { Save, Users, Cloud } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Editor as TldrawEditor } from 'tldraw';
