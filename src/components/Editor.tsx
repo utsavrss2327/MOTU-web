@@ -223,5 +223,6 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
+    </div>
   );
 }
