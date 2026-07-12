@@ -1,6 +1,34 @@
 'use client';
 
+import React from 'react';
 import { Tldraw } from 'tldraw';
+
+class TldrawErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900 text-white p-8 z-50">
+          <h2 className="text-3xl font-bold mb-4">Canvas Crashed!</h2>
+          <p className="mb-4">Please copy this error and send it to the developer:</p>
+          <pre className="text-xs bg-black p-4 rounded max-w-4xl overflow-auto w-full">
+            {this.state.error?.toString()}
+            {"\n"}
+            {this.state.error?.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 import { Save, Users, Cloud } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Editor as TldrawEditor } from 'tldraw';
@@ -141,11 +169,13 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   };
 
   return (
-    <div className="absolute inset-0">
-      <Tldraw 
-        persistenceKey={`freenotes-${tabName}`}
-        onMount={handleMount}
-      />
+    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}>
+      <TldrawErrorBoundary>
+        <Tldraw 
+          persistenceKey={`freenotes-${tabName}`}
+          onMount={handleMount}
+        />
+      </TldrawErrorBoundary>
       
       {/* Floating Buttons - Positioned top center */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[2000] pointer-events-auto flex items-center gap-2">
