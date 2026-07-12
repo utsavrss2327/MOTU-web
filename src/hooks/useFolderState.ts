@@ -17,10 +17,7 @@ const defaultTree: TreeItem[] = [
     type: 'folder',
     isOpen: true,
     children: [
-      { id: 'Current Work', name: 'Current Work', type: 'document' },
-      { id: 'All Notes', name: 'All Notes', type: 'document' },
-      { id: 'Favorites', name: 'Favorites', type: 'document' },
-      { id: 'Recent', name: 'Recent', type: 'document' }
+      { id: 'All Notes', name: 'All Notes', type: 'document' }
     ]
   },
   {
@@ -28,11 +25,7 @@ const defaultTree: TreeItem[] = [
     name: 'Folders',
     type: 'folder',
     isOpen: true,
-    children: [
-      { id: 'Personal', name: 'Personal', type: 'document' },
-      { id: 'Work', name: 'Work', type: 'document' },
-      { id: 'Ideas', name: 'Ideas', type: 'document' }
-    ]
+    children: []
   }
 ];
 
