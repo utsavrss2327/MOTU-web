@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useFolderState, TreeItem } from '@/hooks/useFolderState';
-import { FileText, Search, Clock, Folder, MoreVertical, Edit2, Trash2, FolderOpen, ArrowLeft } from 'lucide-react';
+import { FileText, Search, Clock, Folder, MoreVertical, Edit2, Trash2, FolderOpen, ArrowLeft, Plus } from 'lucide-react';
 
 interface Props {
   onOpenNote: (noteName: string) => void;
 }
 
 export default function AllNotesDashboard({ onOpenNote }: Props) {
-  const { tree, isLoaded, renameItem, deleteItem } = useFolderState();
+  const { tree, isLoaded, renameItem, deleteItem, addItem } = useFolderState();
   const [searchQuery, setSearchQuery] = useState('');
   
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
@@ -125,15 +125,41 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
               {currentFolder ? `Contents of ${currentFolder.name}` : `You have ${allItems.length} item${allItems.length !== 1 ? 's' : ''} across your workspace.`}
             </p>
           </div>
-          <div className="relative w-full md:w-72">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white text-sm rounded-xl pl-10 pr-4 py-2.5 border border-gray-200 focus:ring-2 focus:ring-blue-500/50 outline-none text-zinc-800 placeholder-zinc-400 shadow-sm transition-all"
-            />
+          
+          <div className="flex gap-3 relative w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white text-sm rounded-xl pl-10 pr-4 py-2.5 border border-gray-200 focus:ring-2 focus:ring-blue-500/50 outline-none text-zinc-800 placeholder-zinc-400 shadow-sm transition-all"
+              />
+            </div>
+            <button 
+              onClick={() => {
+                const name = window.prompt("Enter name for new folder:");
+                if (name && name.trim()) {
+                  addItem(currentFolderId || 'folders', name.trim(), 'folder');
+                }
+              }} 
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50 rounded-xl font-medium transition-colors whitespace-nowrap"
+            >
+              <Plus size={18} /> <span className="hidden sm:inline">New Folder</span>
+            </button>
+            <button 
+              onClick={() => {
+                const name = window.prompt("Enter name for new note:");
+                if (name && name.trim()) {
+                  addItem(currentFolderId || 'folders', name.trim(), 'document');
+                  onOpenNote(name.trim());
+                }
+              }} 
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-medium transition-colors shadow-sm shadow-blue-200 whitespace-nowrap"
+            >
+              <Plus size={18} /> <span className="hidden sm:inline">New Note</span>
+            </button>
           </div>
         </div>
 
