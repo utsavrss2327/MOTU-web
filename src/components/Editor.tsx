@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Tldraw } from 'tldraw';
+import { Tldraw, DefaultStylePanel } from 'tldraw';
 
 class TldrawErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: {children: React.ReactNode}) {
@@ -169,6 +169,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   };
 
   const components = React.useMemo(() => ({
+    StylePanel: (props: any) => <DefaultStylePanel {...props} isMobile={true} />,
     SharePanel: () => (
       <div className="flex items-center gap-2 pointer-events-auto" style={{ marginRight: '8px' }}>
         {roomId && (
