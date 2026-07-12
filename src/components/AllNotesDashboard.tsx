@@ -264,9 +264,39 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
             <h3 className="text-xl font-semibold text-zinc-700 mb-1">
               {currentFolder ? 'This folder is empty' : 'No items found'}
             </h3>
-            <p className="text-zinc-500">
+            <p className="text-zinc-500 mb-8">
               {searchQuery ? `No items matching "${searchQuery}"` : "You haven't created any items here yet."}
             </p>
+            
+            {!searchQuery && (
+              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm mx-auto">
+                <button 
+                  onClick={() => {
+                    const name = window.prompt("Enter name for new folder:");
+                    if (name && name.trim()) {
+                      addItem(currentFolderId || 'folders', name.trim(), 'folder');
+                    }
+                  }} 
+                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-orange-600 bg-white hover:bg-orange-50 rounded-xl shadow-sm border border-orange-200 transition-all hover:-translate-y-0.5"
+                >
+                  <Plus size={18} />
+                  <span>New Folder</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const name = window.prompt("Enter name for new note:");
+                    if (name && name.trim()) {
+                      addItem(currentFolderId || 'folders', name.trim(), 'document');
+                      onOpenNote(name.trim());
+                    }
+                  }} 
+                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-white bg-gradient-to-r from-orange-400 to-rose-400 hover:opacity-90 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5"
+                >
+                  <Plus size={18} />
+                  <span>New Note</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
