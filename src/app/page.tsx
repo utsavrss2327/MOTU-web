@@ -90,7 +90,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-[100dvh] w-screen overflow-hidden bg-white dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 relative">
+    <div className="flex h-[100dvh] w-screen overflow-hidden bg-gray-100 font-sans text-zinc-900 relative">
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
