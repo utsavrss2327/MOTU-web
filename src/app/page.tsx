@@ -114,6 +114,7 @@ function AppContent() {
         <div className="flex-1 relative h-full w-full overflow-hidden">
           {hasDocuments ? (
             <Editor 
+              key={activeTab}
               tabName={activeTab} 
               initialData={uploadedData} 
               initialImages={uploadedImages}
