@@ -142,9 +142,8 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   };
 
   return (
-    <div className="w-full h-full relative">
+    <div className="absolute inset-0">
       <Tldraw 
-        className="w-full h-full"
         persistenceKey={`freenotes-${tabName}`}
         onMount={handleMount}
       />
