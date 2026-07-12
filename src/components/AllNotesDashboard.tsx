@@ -142,11 +142,12 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
             return (
               <div
                 key={item.id}
-                onClick={() => {
+                onClick={(e) => {
                   if (!isEditing && item.type === 'document') {
                     onOpenNote(item.name);
-                  } else if (!isEditing && item.type === 'folder' && !activeDropdown) {
-                    setCurrentFolderId(item.id);
+                  } else if (!isEditing && item.type === 'folder') {
+                    e.stopPropagation();
+                    setActiveDropdown(activeDropdown === item.id ? null : item.id);
                   }
                 }}
                 className={`group flex flex-col items-start p-5 bg-white border border-gray-200 rounded-2xl transition-all duration-200 text-left h-40 relative ${item.type === 'document' ? 'hover:border-blue-300 hover:shadow-lg cursor-pointer' : 'hover:border-amber-300 hover:shadow-lg cursor-pointer'}`}
@@ -160,18 +161,8 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                   
                   {item.type === 'folder' && (
                     <div className="relative" ref={activeDropdown === item.id ? dropdownRef : null}>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveDropdown(activeDropdown === item.id ? null : item.id);
-                        }}
-                        className="p-1.5 rounded-lg text-zinc-400 hover:bg-gray-100 hover:text-zinc-700 transition-colors"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
-                      
                       {activeDropdown === item.id && (
-                        <div className="absolute right-0 top-8 w-36 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="absolute right-0 top-0 w-36 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
                           <button 
                             onClick={(e) => { e.stopPropagation(); setCurrentFolderId(item.id); setActiveDropdown(null); }}
                             className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
