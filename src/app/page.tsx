@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-import Editor from "@/components/Editor";
+import dynamic from 'next/dynamic';
+const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
 import { Menu, Save, FileText, Plus, Upload, AlertCircle } from "lucide-react";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
