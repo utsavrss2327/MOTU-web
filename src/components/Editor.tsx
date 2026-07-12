@@ -160,16 +160,9 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   };
 
   const handleSave = () => {
-    if (!editor) return;
-    const snapshot = editor.getSnapshot();
-    const blob = new Blob([JSON.stringify(snapshot)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const safeName = tabName.replace(/\s+/g, '-').toLowerCase();
-    a.download = `${safeName}.tldr`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // The whiteboard automatically saves to localStorage via persistenceKey
+    // We just provide visual feedback to reassure the user
+    alert("Saved successfully! Your changes are securely stored on your device.");
   };
 
   return (

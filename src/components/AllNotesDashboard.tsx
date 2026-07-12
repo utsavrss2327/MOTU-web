@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useFolderState, TreeItem } from '@/hooks/useFolderState';
-import { FileText, Search, Clock, Folder, MoreVertical, Edit2, Trash2, FolderOpen, ArrowLeft, Plus } from 'lucide-react';
+import { FileText, Search, Clock, Folder, MoreVertical, Edit2, Trash2, FolderOpen, ArrowLeft, Plus, Download } from 'lucide-react';
 
 export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenNote: (noteName: string) => void, folderState: ReturnType<typeof useFolderState> }) {
   const { tree, isLoaded, renameItem, deleteItem, addItem } = folderState;
@@ -197,6 +197,25 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
                           title="Edit"
                         >
                           <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const format = window.prompt("Enter export format (pdf, docs, excel, or tldr):", "pdf");
+                            if (format) {
+                              const itemToExport = item.type === 'folder' ? item : {
+                                id: 'temp',
+                                name: item.name + '-export',
+                                type: 'folder' as const,
+                                children: [item]
+                              };
+                              import('@/lib/exportUtils').then(m => m.downloadFolderAsZip(itemToExport, format.toLowerCase()));
+                            }
+                          }}
+                          className="p-2 hover:bg-emerald-50 rounded-lg text-emerald-600 transition-colors"
+                          title="Download"
+                        >
+                          <Download size={16} />
                         </button>
                         <button 
                           onClick={(e) => { 
