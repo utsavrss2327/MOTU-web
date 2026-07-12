@@ -56,7 +56,7 @@ function AppContent() {
             canvas.width = viewport.width;
             
             if (context) {
-              await page.render({ canvasContext: context, viewport }).promise;
+              await page.render({ canvasContext: context, viewport, canvas }).promise;
               images.push(canvas.toDataURL('image/png'));
             }
           }

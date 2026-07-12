@@ -18,8 +18,8 @@ export function useMultiplayerState(roomId: string) {
       signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com']
     });
     
-    provider.on('synced', (isSynced: boolean) => {
-      setIsConnected(isSynced);
+    provider.on('synced', ({ synced }: { synced: boolean }) => {
+      setIsConnected(synced);
     });
     
     return () => {

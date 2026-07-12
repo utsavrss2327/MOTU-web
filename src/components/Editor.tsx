@@ -50,7 +50,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
     setEditor(editorInstance);
     if (initialData) {
       try {
-        editorInstance.store.loadSnapshot(initialData);
+        editorInstance.loadSnapshot(initialData);
         onDataLoaded?.();
       } catch (err) {
         console.error("Failed to load snapshot", err);
@@ -79,6 +79,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
               isAnimated: false,
               mimeType: 'image/png',
             },
+            meta: {}
           }]);
           
           editorInstance.createShapes([{
@@ -115,7 +116,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
     
     setIsSyncing(true);
     try {
-      const snapshot = editor.store.getSnapshot();
+      const snapshot = editor.getSnapshot();
       
       await uploadToDrive(tabName, snapshot, accessToken);
       alert('Successfully synced to Google Drive!');
@@ -129,7 +130,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
 
   const handleSave = () => {
     if (!editor) return;
-    const snapshot = editor.store.getSnapshot();
+    const snapshot = editor.getSnapshot();
     const blob = new Blob([JSON.stringify(snapshot)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -143,7 +144,6 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   return (
     <div className="w-full h-full relative">
       <Tldraw 
-        inferDarkMode
         className="w-full h-full"
         persistenceKey={`freenotes-${tabName}`}
         onMount={handleMount}
