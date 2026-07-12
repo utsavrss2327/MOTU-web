@@ -89,7 +89,7 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
   if (!isLoaded) return null;
 
   return (
-    <div className="flex flex-col h-full w-full bg-gray-100 overflow-y-auto">
+    <div className="flex flex-col h-full w-full bg-[#FFF9F5] overflow-y-auto">
       <div className="p-8 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
@@ -122,7 +122,7 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                 placeholder="Search..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white text-sm rounded-xl pl-10 pr-4 py-2.5 border border-gray-200 focus:ring-2 focus:ring-blue-500/50 outline-none text-zinc-800 placeholder-zinc-400 shadow-sm transition-all"
+                className="w-full bg-white text-sm rounded-xl pl-10 pr-4 py-2.5 border border-orange-200/60 focus:ring-2 focus:ring-orange-500/50 outline-none text-zinc-800 placeholder-zinc-400 shadow-sm transition-all"
               />
             </div>
             <button 
@@ -144,7 +144,7 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                   onOpenNote(name.trim());
                 }
               }} 
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-medium transition-colors shadow-sm shadow-blue-200 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-orange-400 to-rose-400 text-white hover:opacity-90 rounded-xl font-medium transition-colors shadow-sm shadow-orange-200 whitespace-nowrap"
             >
               <Plus size={18} /> <span className="hidden sm:inline">New Note</span>
             </button>
@@ -167,24 +167,24 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                     }
                   }
                 }}
-                className={`group flex flex-col items-start p-5 bg-white border border-gray-200 rounded-2xl transition-all duration-200 text-left h-40 relative ${item.type === 'document' ? 'hover:border-blue-300 hover:shadow-lg cursor-pointer' : 'hover:border-amber-300 hover:shadow-lg cursor-pointer'}`}
+                className={`group flex flex-col items-start p-5 bg-white border border-orange-100 rounded-2xl transition-all duration-200 text-left h-40 relative ${item.type === 'document' ? 'hover:border-orange-300 hover:shadow-lg cursor-pointer' : 'hover:border-rose-300 hover:shadow-lg cursor-pointer'}`}
               >
-                <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${item.type === 'folder' ? 'bg-amber-50' : 'bg-blue-50'}`} />
+                <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${item.type === 'folder' ? 'bg-rose-50' : 'bg-orange-50'}`} />
                 
                 <div className="w-full flex justify-between items-start relative z-10">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200 ${item.type === 'folder' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200 ${item.type === 'folder' ? 'bg-rose-100/50 text-rose-500' : 'bg-orange-100/50 text-orange-500'}`}>
                     {item.type === 'folder' ? <Folder size={20} /> : <FileText size={20} />}
                   </div>
                   
                   {/* Hover Options Menu */}
-                  <div className="opacity-0 group-hover:opacity-100 flex items-center bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-sm z-20 gap-1 border border-gray-100 transition-all duration-200">
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-sm z-20 gap-1 border border-orange-100 transition-all duration-200">
                     <button 
                       onClick={(e) => { 
                         e.stopPropagation(); 
                         if (item.type === 'folder') setCurrentFolderId(item.id); 
                         else onOpenNote(item.name);
                       }}
-                      className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                      className="p-2 hover:bg-orange-50 rounded-lg text-orange-500 transition-colors"
                       title="View"
                     >
                       {item.type === 'folder' ? <FolderOpen size={16} /> : <FileText size={16} />}

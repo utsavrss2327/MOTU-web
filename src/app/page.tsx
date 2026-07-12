@@ -91,7 +91,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-[100dvh] w-screen overflow-hidden bg-gray-100 font-sans text-zinc-900 relative">
+    <div className="flex h-[100dvh] w-screen overflow-hidden bg-[#FFF9F5] font-sans text-zinc-900 relative">
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
@@ -101,7 +101,7 @@ function AppContent() {
       
       <main className="flex-1 relative flex flex-col w-full h-full overflow-hidden">
         {/* Mobile Header - Only visible on small screens */}
-        <header className="md:hidden flex items-center justify-between p-3 bg-gray-100 border-b border-gray-300 shrink-0 z-40">
+        <header className="md:hidden flex items-center justify-between p-3 bg-[#FFF9F5] border-b border-orange-200/60 shrink-0 z-40">
           <button 
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 text-zinc-700 hover:bg-gray-200 rounded-lg transition-colors"
@@ -146,7 +146,7 @@ function AppContent() {
               <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
                 <button 
                   onClick={handleCreateDocument}
-                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <Plus size={18} />
                   <span>New Document</span>
