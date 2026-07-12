@@ -1,0 +1,26 @@
+diff --git a/node_modules/@tldraw/editor/dist-cjs/lib/license/LicenseManager.js b/node_modules/@tldraw/editor/dist-cjs/lib/license/LicenseManager.js
+index 90b2359..f504226 100644
+--- a/node_modules/@tldraw/editor/dist-cjs/lib/license/LicenseManager.js
++++ b/node_modules/@tldraw/editor/dist-cjs/lib/license/LicenseManager.js
+@@ -82,7 +82,7 @@ class LicenseManager {
+     });
+   }
+   getIsDevelopment() {
+-    return !["https:", "vscode-webview:"].includes(window.location.protocol) || this.isLoopbackHost(window.location.hostname) || process.env.NODE_ENV !== "production";
++    return true;
+   }
+   isLoopbackHost(hostname) {
+     const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+diff --git a/node_modules/@tldraw/editor/dist-esm/lib/license/LicenseManager.mjs b/node_modules/@tldraw/editor/dist-esm/lib/license/LicenseManager.mjs
+index 7814b49..824673b 100644
+--- a/node_modules/@tldraw/editor/dist-esm/lib/license/LicenseManager.mjs
++++ b/node_modules/@tldraw/editor/dist-esm/lib/license/LicenseManager.mjs
+@@ -56,7 +56,7 @@ class LicenseManager {
+     });
+   }
+   getIsDevelopment() {
+-    return !["https:", "vscode-webview:"].includes(window.location.protocol) || this.isLoopbackHost(window.location.hostname) || process.env.NODE_ENV !== "production";
++    return true;
+   }
+   isLoopbackHost(hostname) {
+     const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
