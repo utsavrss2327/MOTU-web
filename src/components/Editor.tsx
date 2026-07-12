@@ -149,7 +149,11 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
       alert('Successfully synced to Google Drive!');
     } catch (err: any) {
       console.error('Drive sync failed', err);
-      alert(`Failed to sync to Google Drive. Check console for details.\n\nError: ${err.message}`);
+      if (err.message && err.message.includes('401')) {
+        alert('Your Google session has expired. Please sign out from the sidebar and sign back in to refresh your connection.');
+      } else {
+        alert(`Failed to sync to Google Drive. Check console for details.\n\nError: ${err.message}`);
+      }
     } finally {
       setIsSyncing(false);
     }
