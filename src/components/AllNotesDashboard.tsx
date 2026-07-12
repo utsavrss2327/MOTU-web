@@ -30,17 +30,19 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
   const { currentFolder, allItems } = useMemo(() => {
     if (currentFolderId) {
       // Find current folder
-      let foundFolder: TreeItem | null = null;
-      const findFolder = (nodes: TreeItem[]) => {
+      const findFolder = (nodes: TreeItem[]): TreeItem | null => {
         for (const node of nodes) {
           if (node.id === currentFolderId) {
-            foundFolder = node;
-            return;
+            return node;
           }
-          if (node.children) findFolder(node.children);
+          if (node.children) {
+            const found = findFolder(node.children);
+            if (found) return found;
+          }
         }
+        return null;
       };
-      findFolder(tree);
+      const foundFolder = findFolder(tree);
       
       // If folder not found (maybe deleted), return to root
       if (!foundFolder) {
