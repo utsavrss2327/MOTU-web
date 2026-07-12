@@ -143,9 +143,7 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
               <div
                 key={item.id}
                 onClick={(e) => {
-                  if (!isEditing && item.type === 'document') {
-                    onOpenNote(item.name);
-                  } else if (!isEditing && item.type === 'folder') {
+                  if (!isEditing) {
                     e.stopPropagation();
                     setActiveDropdown(activeDropdown === item.id ? null : item.id);
                   }
@@ -159,38 +157,44 @@ export default function AllNotesDashboard({ onOpenNote }: Props) {
                     {item.type === 'folder' ? <Folder size={20} /> : <FileText size={20} />}
                   </div>
                   
-                  {item.type === 'folder' && (
-                    <div className="relative" ref={activeDropdown === item.id ? dropdownRef : null}>
-                      {activeDropdown === item.id && (
-                        <div className="absolute right-0 top-0 w-36 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setCurrentFolderId(item.id); setActiveDropdown(null); }}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
-                          >
-                            <FolderOpen size={16} className="text-blue-500" /> View
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setEditFolderName(item.name); setEditingFolderId(item.id); setActiveDropdown(null); }}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
-                          >
-                            <Edit2 size={16} className="text-amber-500" /> Edit
-                          </button>
-                          <button 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              if(window.confirm(`Delete folder "${item.name}" and all contents?`)) {
-                                deleteItem(item.id);
-                              }
-                              setActiveDropdown(null); 
-                            }}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left"
-                          >
-                            <Trash2 size={16} className="text-red-500" /> Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <div className="relative" ref={activeDropdown === item.id ? dropdownRef : null}>
+                    {activeDropdown === item.id && (
+                      <div className="absolute right-0 top-0 w-36 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (item.type === 'folder') {
+                              setCurrentFolderId(item.id); 
+                            } else {
+                              onOpenNote(item.name);
+                            }
+                            setActiveDropdown(null); 
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
+                        >
+                          {item.type === 'folder' ? <FolderOpen size={16} className="text-blue-500" /> : <FileText size={16} className="text-blue-500" />} View
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditFolderName(item.name); setEditingFolderId(item.id); setActiveDropdown(null); }}
+                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-zinc-700 hover:bg-gray-50 text-left"
+                        >
+                          <Edit2 size={16} className="text-amber-500" /> Edit
+                        </button>
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if(window.confirm(`Delete "${item.name}"?`)) {
+                              deleteItem(item.id);
+                            }
+                            setActiveDropdown(null); 
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left"
+                        >
+                          <Trash2 size={16} className="text-red-500" /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {isEditing ? (
