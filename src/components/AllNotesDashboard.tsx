@@ -85,7 +85,7 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
   if (!isLoaded) return null;
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#FFF9F5] overflow-y-auto">
+    <div className="flex flex-col h-full w-full bg-transparent overflow-y-auto">
       <div className="p-8 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>

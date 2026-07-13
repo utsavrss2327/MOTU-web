@@ -78,7 +78,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-[100dvh] w-screen overflow-hidden bg-[#FFF9F5] font-sans text-zinc-900 relative">
+    <div className="flex h-[100dvh] w-screen overflow-hidden bg-[#FFF9F5] bg-paper font-sans text-zinc-900 relative">
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
@@ -89,7 +89,7 @@ function AppContent() {
       
       <main className="flex-1 relative flex flex-col w-full h-full overflow-hidden">
         {/* Mobile Header - Only visible on small screens */}
-        <header className="md:hidden flex items-center justify-between p-3 bg-[#FFF9F5] border-b border-orange-200/60 shrink-0 z-40">
+        <header className="md:hidden flex items-center justify-between p-3 bg-transparent border-b border-orange-200/60 shrink-0 z-40">
           <button 
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 text-zinc-700 hover:bg-gray-200 rounded-lg transition-colors"
