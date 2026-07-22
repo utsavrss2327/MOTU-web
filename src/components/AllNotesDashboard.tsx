@@ -11,6 +11,22 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editFolderName, setEditFolderName] = useState('');
   
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    title: string;
+    placeholder?: string;
+    defaultValue?: string;
+    type: 'prompt' | 'confirm';
+    onSubmit: (value?: string) => void;
+  }>({
+    isOpen: false,
+    title: '',
+    type: 'prompt',
+    onSubmit: () => {}
+  });
+
+  const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
+  
   // To close dropdown when clicking outside
   const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -123,10 +139,17 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
             </div>
             <button 
               onClick={() => {
-                const name = window.prompt("Enter name for new folder:");
-                if (name && name.trim()) {
-                  addItem(currentFolderId || 'folders', name.trim(), 'folder');
-                }
+                setModalState({
+                  isOpen: true,
+                  title: 'Create New Folder',
+                  placeholder: 'Folder name',
+                  type: 'prompt',
+                  onSubmit: (name) => {
+                    if (name && name.trim()) {
+                      addItem(currentFolderId || 'folders', name.trim(), 'folder');
+                    }
+                  }
+                });
               }} 
               className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50 rounded-xl font-medium transition-colors whitespace-nowrap"
             >
@@ -134,11 +157,18 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
             </button>
             <button 
               onClick={() => {
-                const name = window.prompt("Enter name for new note:");
-                if (name && name.trim()) {
-                  addItem(currentFolderId || 'folders', name.trim(), 'document');
-                  onOpenNote(name.trim());
-                }
+                setModalState({
+                  isOpen: true,
+                  title: 'Create New Note',
+                  placeholder: 'Note name',
+                  type: 'prompt',
+                  onSubmit: (name) => {
+                    if (name && name.trim()) {
+                      addItem(currentFolderId || 'folders', name.trim(), 'document');
+                      onOpenNote(name.trim());
+                    }
+                  }
+                });
               }} 
               className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-orange-400 to-rose-400 text-white hover:opacity-90 rounded-xl font-medium transition-colors shadow-sm shadow-orange-200 whitespace-nowrap"
             >
@@ -201,16 +231,24 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            const format = window.prompt("Enter export format (pdf, docs, excel, or tldr):", "pdf");
-                            if (format) {
-                              const itemToExport = item.type === 'folder' ? item : {
-                                id: 'temp',
-                                name: item.name + '-export',
-                                type: 'folder' as const,
-                                children: [item]
-                              };
-                              import('@/lib/exportUtils').then(m => m.downloadFolderAsZip(itemToExport, format.toLowerCase()));
-                            }
+                            setModalState({
+                              isOpen: true,
+                              title: 'Export Document',
+                              placeholder: 'pdf, docs, excel, or tldr',
+                              defaultValue: 'pdf',
+                              type: 'prompt',
+                              onSubmit: (format) => {
+                                if (format) {
+                                  const itemToExport = item.type === 'folder' ? item : {
+                                    id: 'temp',
+                                    name: item.name + '-export',
+                                    type: 'folder' as const,
+                                    children: [item]
+                                  };
+                                  import('@/lib/exportUtils').then(m => m.downloadFolderAsZip(itemToExport, format.toLowerCase()));
+                                }
+                              }
+                            });
                           }}
                           className="p-2 hover:bg-emerald-50 rounded-lg text-emerald-600 transition-colors"
                           title="Download"
@@ -220,9 +258,14 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            if(window.confirm(`Delete "${item.name}"?`)) {
-                              deleteItem(item.id);
-                            }
+                            setModalState({
+                              isOpen: true,
+                              title: `Delete "${item.name}"?`,
+                              type: 'confirm',
+                              onSubmit: () => {
+                                deleteItem(item.id);
+                              }
+                            });
                           }}
                           className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                           title="Delete"
@@ -287,10 +330,17 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
               <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm mx-auto">
                 <button 
                   onClick={() => {
-                    const name = window.prompt("Enter name for new folder:");
-                    if (name && name.trim()) {
-                      addItem(currentFolderId || 'folders', name.trim(), 'folder');
-                    }
+                    setModalState({
+                      isOpen: true,
+                      title: 'Create New Folder',
+                      placeholder: 'Folder name',
+                      type: 'prompt',
+                      onSubmit: (name) => {
+                        if (name && name.trim()) {
+                          addItem(currentFolderId || 'folders', name.trim(), 'folder');
+                        }
+                      }
+                    });
                   }} 
                   className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-orange-600 bg-white hover:bg-orange-50 rounded-xl shadow-sm border border-orange-200 transition-all hover:-translate-y-0.5"
                 >
@@ -299,11 +349,18 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
                 </button>
                 <button 
                   onClick={() => {
-                    const name = window.prompt("Enter name for new note:");
-                    if (name && name.trim()) {
-                      addItem(currentFolderId || 'folders', name.trim(), 'document');
-                      onOpenNote(name.trim());
-                    }
+                    setModalState({
+                      isOpen: true,
+                      title: 'Create New Note',
+                      placeholder: 'Note name',
+                      type: 'prompt',
+                      onSubmit: (name) => {
+                        if (name && name.trim()) {
+                          addItem(currentFolderId || 'folders', name.trim(), 'document');
+                          onOpenNote(name.trim());
+                        }
+                      }
+                    });
                   }} 
                   className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium text-white bg-gradient-to-r from-orange-400 to-rose-400 hover:opacity-90 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5"
                 >
@@ -315,6 +372,62 @@ export default function AllNotesDashboard({ onOpenNote, folderState }: { onOpenN
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      {modalState.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-orange-100">
+            <div className="p-7">
+              <h3 className="text-xl font-bold text-zinc-900 mb-5">{modalState.title}</h3>
+              {modalState.type === 'prompt' && (
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder={modalState.placeholder}
+                  defaultValue={modalState.defaultValue}
+                  className="w-full bg-orange-50/50 border border-orange-200/60 rounded-xl px-4 py-3 text-zinc-800 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder-zinc-400"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      modalState.onSubmit(e.currentTarget.value);
+                      closeModal();
+                    }
+                    if (e.key === 'Escape') {
+                      closeModal();
+                    }
+                  }}
+                  id="modal-input"
+                />
+              )}
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  onClick={closeModal}
+                  className="px-5 py-2.5 rounded-xl font-medium text-zinc-600 hover:bg-zinc-100 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (modalState.type === 'prompt') {
+                      const input = document.getElementById('modal-input') as HTMLInputElement;
+                      modalState.onSubmit(input?.value);
+                    } else {
+                      modalState.onSubmit();
+                    }
+                    closeModal();
+                  }}
+                  className={`px-6 py-2.5 rounded-xl font-medium text-white shadow-sm transition-all ${
+                    modalState.type === 'confirm' 
+                      ? 'bg-red-500 hover:bg-red-600 shadow-red-200'
+                      : 'bg-gradient-to-r from-orange-400 to-rose-400 hover:opacity-90 shadow-orange-200'
+                  }`}
+                >
+                  {modalState.type === 'confirm' ? 'Delete' : 'Confirm'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
