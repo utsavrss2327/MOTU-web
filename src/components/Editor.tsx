@@ -133,11 +133,27 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
 
   const [isSyncing, setIsSyncing] = useState(false);
   const { accessToken } = useAuth();
+  
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setAlertState({ isOpen: true, title, message, type });
+  };
 
   const handleDriveSync = async () => {
     if (!editor) return;
     if (!accessToken) {
-      alert("You are not signed in. Please sign in to sync to Google Drive.");
+      showAlert('Sign In Required', "You are not signed in. Please sign in to sync to Google Drive.", 'error');
       return;
     }
     
@@ -146,13 +162,13 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
       const snapshot = editor.getSnapshot();
       
       await uploadToDrive(tabName, snapshot, accessToken);
-      alert('Successfully synced to Google Drive!');
+      showAlert('Sync Complete', 'Successfully synced to Google Drive!', 'success');
     } catch (err: any) {
       console.error('Drive sync failed', err);
       if (err.message && err.message.includes('401')) {
-        alert('Your Google session has expired. Please sign out from the sidebar and sign back in to refresh your connection.');
+        showAlert('Session Expired', 'Your Google session has expired. Please sign out from the sidebar and sign back in to refresh your connection.', 'error');
       } else {
-        alert(`Failed to sync to Google Drive. Check console for details.\n\nError: ${err.message}`);
+        showAlert('Sync Failed', `Failed to sync to Google Drive. Check console for details.\n\nError: ${err.message}`, 'error');
       }
     } finally {
       setIsSyncing(false);
@@ -162,7 +178,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   const handleSave = () => {
     // The whiteboard automatically saves to localStorage via persistenceKey
     // We just provide visual feedback to reassure the user
-    alert("Saved successfully! Your changes are securely stored on your device.");
+    showAlert('Saved', "Saved successfully! Your changes are securely stored on your device.", 'success');
   };
 
   return (
@@ -211,7 +227,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
             const newRoomId = `room-${Math.random().toString(36).substr(2, 9)}`;
             const url = `${window.location.origin}?room=${newRoomId}`;
             navigator.clipboard.writeText(url);
-            alert(`Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`);
+            showAlert('Link Copied', `Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`, 'info');
           }}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
           title="Share"
@@ -220,6 +236,37 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
+
+      {/* Alert Modal */}
+      {alertState.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-orange-100">
+            <div className="p-7">
+              <h3 className={`text-xl font-bold mb-3 ${
+                alertState.type === 'error' ? 'text-red-600' :
+                alertState.type === 'success' ? 'text-emerald-600' :
+                'text-indigo-600'
+              }`}>
+                {alertState.title}
+              </h3>
+              <p className="text-zinc-600 whitespace-pre-wrap">{alertState.message}</p>
+              
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  onClick={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                  className={`px-6 py-2.5 rounded-xl font-medium text-white shadow-sm transition-all ${
+                    alertState.type === 'error' ? 'bg-red-500 hover:bg-red-600 shadow-red-200' :
+                    alertState.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200' :
+                    'bg-indigo-500 hover:bg-indigo-600 shadow-indigo-200'
+                  }`}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
