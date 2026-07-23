@@ -29,13 +29,14 @@ class TldrawErrorBoundary extends React.Component<{children: React.ReactNode}, {
   }
 }
 
-import { Save, Users, Cloud, ChevronLeft, ChevronRight, FilePlus } from 'lucide-react';
+import { Save, Users, Cloud, ChevronLeft, ChevronRight, FilePlus, Share2, Download, Link2, Check, X } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import type { Editor as TldrawEditor, TLPage } from 'tldraw';
 import { useMultiplayerState } from '@/hooks/useMultiplayerState';
 import { useAuth } from '@/contexts/AuthContext';
 import { uploadToDrive } from '@/lib/googleDrive';
 import { getIndexBetween, getIndexAbove } from '@tldraw/utils';
+import { compressSnapshot, filterSnapshotByPages, downloadAsFile, MAX_URL_DATA_LENGTH } from '@/lib/shareUtils';
 
 interface EditorProps {
   tabName: string;
@@ -187,6 +188,90 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
   const [isSyncing, setIsSyncing] = useState(false);
   const { accessToken } = useAuth();
   
+  // Share modal state
+  const [shareModal, setShareModal] = useState(false);
+  const [shareMode, setShareMode] = useState<'all' | 'current' | 'select'>('all');
+  const [selectedSharePages, setSelectedSharePages] = useState<Set<string>>(new Set());
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareResult, setShareResult] = useState<{ url: string; copied: boolean } | null>(null);
+
+  const openShareModal = () => {
+    setShareModal(true);
+    setShareMode('all');
+    setSelectedSharePages(new Set());
+    setShareResult(null);
+  };
+
+  const handleShare = async () => {
+    if (!editor) return;
+    setIsSharing(true);
+    setShareResult(null);
+
+    try {
+      const snapshot = editor.getSnapshot();
+      const allPages = editor.getPages();
+
+      let pageIds: string[];
+      if (shareMode === 'current') {
+        pageIds = [editor.getCurrentPageId()];
+      } else if (shareMode === 'select') {
+        pageIds = allPages.filter(p => selectedSharePages.has(p.id)).map(p => p.id);
+      } else {
+        pageIds = allPages.map(p => p.id);
+      }
+
+      if (pageIds.length === 0) {
+        showAlert('No Pages Selected', 'Please select at least one page to share.', 'error');
+        setIsSharing(false);
+        return;
+      }
+
+      const filtered = filterSnapshotByPages(snapshot, pageIds);
+      const compressed = await compressSnapshot(filtered);
+
+      if (compressed.length > MAX_URL_DATA_LENGTH) {
+        // Too large for URL — download only
+        downloadAsFile(filtered, `${tabName}.tldr`);
+        showAlert(
+          'File Downloaded',
+          'Your notes are too large for a shareable link. A .tldr file has been downloaded instead — share it directly with your recipient.',
+          'info'
+        );
+        setShareModal(false);
+        setIsSharing(false);
+        return;
+      }
+
+      const encodedName = encodeURIComponent(tabName);
+      const url = `${window.location.origin}/shared#name=${encodedName}&data=${compressed}`;
+      await navigator.clipboard.writeText(url);
+      setShareResult({ url, copied: true });
+    } catch (err: any) {
+      console.error('Share failed:', err);
+      showAlert('Share Failed', `Could not share notes: ${err.message}`, 'error');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleDownloadTldr = () => {
+    if (!editor) return;
+    const snapshot = editor.getSnapshot();
+    const allPages = editor.getPages();
+
+    let pageIds: string[];
+    if (shareMode === 'current') {
+      pageIds = [editor.getCurrentPageId()];
+    } else if (shareMode === 'select') {
+      pageIds = allPages.filter(p => selectedSharePages.has(p.id)).map(p => p.id);
+    } else {
+      pageIds = allPages.map(p => p.id);
+    }
+
+    const filtered = filterSnapshotByPages(snapshot, pageIds);
+    downloadAsFile(filtered, `${tabName}.tldr`);
+  };
+
   const [alertState, setAlertState] = useState<{
     isOpen: boolean;
     title: string;
@@ -276,16 +361,11 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
         </button>
 
         <button 
-          onClick={() => {
-            const newRoomId = `room-${Math.random().toString(36).substr(2, 9)}`;
-            const url = `${window.location.origin}?room=${newRoomId}`;
-            navigator.clipboard.writeText(url);
-            showAlert('Link Copied', `Share link copied: ${url}\n\nNote: Multiplayer sync requires linking the Yjs doc to the tldraw store in Editor.tsx.`, 'info');
-          }}
+          onClick={openShareModal}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs sm:text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
-          title="Share"
+          title="Share Notes"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <Share2 size={16} />
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
@@ -359,6 +439,110 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
                   }`}
                 >
                   OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {shareModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-orange-100">
+            {/* Header */}
+            <div className="flex items-center justify-between px-7 pt-7 pb-2">
+              <h3 className="text-xl font-bold text-zinc-800">Share Notes</h3>
+              <button
+                onClick={() => setShareModal(false)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-7 pb-7">
+              <p className="text-sm text-zinc-500 mb-5">Choose what to share from <span className="font-medium text-zinc-700">{tabName}</span></p>
+
+              {/* Share Mode Options */}
+              <div className="flex flex-col gap-2 mb-5">
+                {(['all', 'current', 'select'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => { setShareMode(mode); setShareResult(null); }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left text-sm font-medium transition-all ${
+                      shareMode === mode
+                        ? 'border-orange-400 bg-orange-50 text-orange-700 shadow-sm'
+                        : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      shareMode === mode ? 'border-orange-500' : 'border-zinc-300'
+                    }`}>
+                      {shareMode === mode && <div className="w-2 h-2 rounded-full bg-orange-500" />}
+                    </div>
+                    {mode === 'all' && 'All Pages'}
+                    {mode === 'current' && `Current Page (${pages[currentPageIndex]?.name || 'Page ' + (currentPageIndex + 1)})`}
+                    {mode === 'select' && 'Select Specific Pages'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Page Checkboxes (only when select mode) */}
+              {shareMode === 'select' && (
+                <div className="mb-5 max-h-48 overflow-y-auto rounded-xl border border-zinc-200 divide-y divide-zinc-100">
+                  {pages.map((page, idx) => (
+                    <label
+                      key={page.id}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50/50 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSharePages.has(page.id)}
+                        onChange={(e) => {
+                          const next = new Set(selectedSharePages);
+                          if (e.target.checked) next.add(page.id); else next.delete(page.id);
+                          setSelectedSharePages(next);
+                          setShareResult(null);
+                        }}
+                        className="w-4 h-4 rounded border-zinc-300 text-orange-500 focus:ring-orange-500"
+                      />
+                      <span className="text-sm text-zinc-700">{page.name || `Page ${idx + 1}`}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* Result - link copied */}
+              {shareResult && (
+                <div className="mb-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Check size={16} className="text-emerald-600" />
+                    <span className="text-sm font-semibold text-emerald-700">Link copied to clipboard!</span>
+                  </div>
+                  <p className="text-xs text-emerald-600/80 break-all font-mono leading-relaxed">
+                    {shareResult.url.length > 120 ? shareResult.url.slice(0, 120) + '…' : shareResult.url}
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleShare}
+                  disabled={isSharing || (shareMode === 'select' && selectedSharePages.size === 0)}
+                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium text-sm transition-all shadow-sm"
+                >
+                  <Link2 size={16} />
+                  {isSharing ? 'Generating…' : 'Copy Share Link'}
+                </button>
+                <button
+                  onClick={handleDownloadTldr}
+                  disabled={shareMode === 'select' && selectedSharePages.size === 0}
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 rounded-xl font-medium text-sm transition-all"
+                >
+                  <Download size={16} />
+                  Download
                 </button>
               </div>
             </div>
