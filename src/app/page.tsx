@@ -17,6 +17,18 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('All Notes');
 
+  useEffect(() => {
+    // Check if there is a tab requested in the URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+      // Clean up the URL to prevent reloading into it on subsequent refreshes if unwanted,
+      // though leaving it is also fine. We'll just set the active tab.
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
   const [uploadedData, setUploadedData] = useState<any>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);

@@ -37,6 +37,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { uploadToDrive } from '@/lib/googleDrive';
 import { getIndexBetween, getIndexAbove } from '@tldraw/utils';
 import { compressSnapshot, filterSnapshotByPages, downloadAsFile, MAX_URL_DATA_LENGTH } from '@/lib/shareUtils';
+import { exportToPdf, exportToDocx } from '@/lib/exportFormats';
 
 interface EditorProps {
   tabName: string;
@@ -254,7 +255,7 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
     }
   };
 
-  const handleDownloadTldr = () => {
+  const handleDownloadFormat = async (format: 'tldr' | 'pdf' | 'docx') => {
     if (!editor) return;
     const snapshot = editor.getSnapshot();
     const allPages = editor.getPages();
@@ -268,8 +269,16 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
       pageIds = allPages.map(p => p.id);
     }
 
-    const filtered = filterSnapshotByPages(snapshot, pageIds);
-    downloadAsFile(filtered, `${tabName}.tldr`);
+    if (pageIds.length === 0) return;
+
+    if (format === 'tldr') {
+      const filtered = filterSnapshotByPages(snapshot, pageIds);
+      downloadAsFile(filtered, `${tabName}.tldr`);
+    } else if (format === 'pdf') {
+      await exportToPdf(editor, pageIds, tabName);
+    } else if (format === 'docx') {
+      await exportToDocx(editor, pageIds, tabName);
+    }
   };
 
   const [alertState, setAlertState] = useState<{
@@ -536,14 +545,32 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
                   <Link2 size={16} />
                   {isSharing ? 'Generating…' : 'Copy Share Link'}
                 </button>
-                <button
-                  onClick={handleDownloadTldr}
-                  disabled={shareMode === 'select' && selectedSharePages.size === 0}
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 rounded-xl font-medium text-sm transition-all"
-                >
-                  <Download size={16} />
-                  Download
-                </button>
+                <div className="flex items-center border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
+                  <div className="px-3 py-2.5 bg-zinc-50 border-r border-zinc-200 text-zinc-500 flex items-center justify-center">
+                    <Download size={16} />
+                  </div>
+                  <button
+                    onClick={() => handleDownloadFormat('tldr')}
+                    disabled={shareMode === 'select' && selectedSharePages.size === 0}
+                    className="px-4 py-2.5 bg-white hover:bg-zinc-50 border-r border-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 font-medium text-sm transition-all"
+                  >
+                    .tldr
+                  </button>
+                  <button
+                    onClick={() => handleDownloadFormat('pdf')}
+                    disabled={shareMode === 'select' && selectedSharePages.size === 0}
+                    className="px-4 py-2.5 bg-white hover:bg-zinc-50 border-r border-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 font-medium text-sm transition-all"
+                  >
+                    .pdf
+                  </button>
+                  <button
+                    onClick={() => handleDownloadFormat('docx')}
+                    disabled={shareMode === 'select' && selectedSharePages.size === 0}
+                    className="px-4 py-2.5 bg-white hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 font-medium text-sm transition-all"
+                  >
+                    .docx
+                  </button>
+                </div>
               </div>
             </div>
           </div>

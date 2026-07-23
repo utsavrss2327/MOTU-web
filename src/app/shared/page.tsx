@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { decompressSnapshot, downloadAsFile } from '@/lib/shareUtils';
+import { exportToPdf, exportToDocx } from '@/lib/exportFormats';
+import type { Editor } from 'tldraw';
 import dynamic from 'next/dynamic';
+import { Download, Edit3, ArrowLeft } from 'lucide-react';
 
 const SharedViewer = dynamic(() => import('@/components/SharedViewer'), { ssr: false });
 
@@ -11,6 +14,7 @@ export default function SharedPage() {
   const [noteName, setNoteName] = useState('Shared Notes');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editor, setEditor] = useState<Editor | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -47,10 +51,51 @@ export default function SharedPage() {
     load();
   }, []);
 
-  const handleDownload = () => {
+  const handleDownloadFormat = async (format: 'tldr' | 'pdf' | 'docx') => {
     if (!snapshot) return;
     const safeName = noteName.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim() || 'shared-notes';
-    downloadAsFile(snapshot, `${safeName}.tldr`);
+    
+    if (format === 'tldr') {
+      downloadAsFile(snapshot, `${safeName}.tldr`);
+    } else if (editor) {
+      const pageIds = editor.getPages().map(p => p.id);
+      if (format === 'pdf') {
+        await exportToPdf(editor, pageIds, safeName);
+      } else if (format === 'docx') {
+        await exportToDocx(editor, pageIds, safeName);
+      }
+    }
+  };
+
+  const handleImportAndEdit = () => {
+    if (!snapshot) return;
+    
+    // Save snapshot directly to localStorage
+    const persistenceKey = `freenotes-${noteName}`;
+    localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
+
+    // Update folder structure
+    try {
+      const savedFolders = localStorage.getItem('freenotes-folders');
+      let tree = savedFolders ? JSON.parse(savedFolders) : [];
+      let foldersNode = tree.find((n: any) => n.id === 'folders');
+      if (!foldersNode) {
+        foldersNode = { id: 'folders', name: 'Folders', type: 'folder', isOpen: true, isStatic: true, children: [] };
+        tree.push(foldersNode);
+      }
+      if (!foldersNode.children) foldersNode.children = [];
+      
+      const newId = `${noteName}-${Date.now()}`;
+      foldersNode.children.push({ id: newId, name: noteName, type: 'document' });
+      foldersNode.isOpen = true; // ensure it's open
+      
+      localStorage.setItem('freenotes-folders', JSON.stringify(tree));
+    } catch (e) {
+      console.error('Failed to update folder tree:', e);
+    }
+
+    // Redirect to main app with the tab selected
+    window.location.href = `/?tab=${encodeURIComponent(noteName)}`;
   };
 
   if (loading) {
@@ -103,22 +148,44 @@ export default function SharedPage() {
             <p className="text-xs text-zinc-400">{pageCount} page{pageCount !== 1 ? 's' : ''} shared</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-all shadow-sm"
+            onClick={handleImportAndEdit}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Download .tldr
+            <Edit3 size={16} />
+            <span className="hidden sm:inline">Import & Edit</span>
           </button>
+          
+          <div className="flex items-center border border-orange-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="px-3 py-2 bg-orange-50 border-r border-orange-200 text-orange-600 flex items-center justify-center">
+              <Download size={16} />
+            </div>
+            <button
+              onClick={() => handleDownloadFormat('tldr')}
+              className="px-3 py-2 bg-white hover:bg-orange-50 border-r border-orange-200 text-zinc-700 font-medium text-xs transition-all"
+            >
+              .tldr
+            </button>
+            <button
+              onClick={() => handleDownloadFormat('pdf')}
+              className="px-3 py-2 bg-white hover:bg-orange-50 border-r border-orange-200 text-zinc-700 font-medium text-xs transition-all"
+            >
+              .pdf
+            </button>
+            <button
+              onClick={() => handleDownloadFormat('docx')}
+              className="px-3 py-2 bg-white hover:bg-orange-50 text-zinc-700 font-medium text-xs transition-all"
+            >
+              .docx
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Tldraw Viewer */}
       <div className="flex-1 relative">
-        {snapshot && <SharedViewer snapshot={snapshot} />}
+        {snapshot && <SharedViewer snapshot={snapshot} onMount={setEditor} />}
       </div>
     </div>
   );
