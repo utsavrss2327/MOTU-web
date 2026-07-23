@@ -29,12 +29,13 @@ class TldrawErrorBoundary extends React.Component<{children: React.ReactNode}, {
   }
 }
 
-import { Save, Users, Cloud } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import type { Editor as TldrawEditor } from 'tldraw';
+import { Save, Users, Cloud, ChevronLeft, ChevronRight, FilePlus } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import type { Editor as TldrawEditor, TLPage } from 'tldraw';
 import { useMultiplayerState } from '@/hooks/useMultiplayerState';
 import { useAuth } from '@/contexts/AuthContext';
 import { uploadToDrive } from '@/lib/googleDrive';
+import { getIndexBetween, getIndexAbove } from '@tldraw/utils';
 
 interface EditorProps {
   tabName: string;
@@ -46,8 +47,60 @@ interface EditorProps {
 export default function Editor({ tabName, initialData, initialImages, onDataLoaded }: EditorProps) {
   const [editor, setEditor] = useState<TldrawEditor | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [pages, setPages] = useState<TLPage[]>([]);
+  const [currentPageId, setCurrentPageId] = useState<string>('');
 
   const { isConnected } = useMultiplayerState(roomId || '');
+
+  // Subscribe to page changes from the tldraw editor
+  useEffect(() => {
+    if (!editor) return;
+    const updatePages = () => {
+      setPages(editor.getPages());
+      setCurrentPageId(editor.getCurrentPageId());
+    };
+    updatePages();
+    // Listen for any store changes that affect pages
+    const unsub = editor.store.listen(updatePages, { scope: 'document' });
+    return () => unsub();
+  }, [editor]);
+
+  const currentPageIndex = pages.findIndex(p => p.id === currentPageId);
+
+  const handleInsertPageAfter = useCallback(() => {
+    if (!editor) return;
+    const allPages = editor.getPages();
+    const curIdx = allPages.findIndex(p => p.id === editor.getCurrentPageId());
+    if (curIdx === -1) return;
+
+    const currentPage = allPages[curIdx];
+    const nextPage = allPages[curIdx + 1];
+
+    // Compute the index key between current page and next page
+    const newIndex = nextPage
+      ? getIndexBetween(currentPage.index, nextPage.index)
+      : getIndexAbove(currentPage.index);
+
+    const pageNum = allPages.length + 1;
+    editor.createPage({ name: `Page ${pageNum}`, index: newIndex });
+
+    // Navigate to the newly created page
+    const updatedPages = editor.getPages();
+    const newPage = updatedPages.find(p => p.index === newIndex);
+    if (newPage) {
+      editor.setCurrentPage(newPage.id);
+    }
+  }, [editor]);
+
+  const handlePrevPage = useCallback(() => {
+    if (!editor || currentPageIndex <= 0) return;
+    editor.setCurrentPage(pages[currentPageIndex - 1].id);
+  }, [editor, pages, currentPageIndex]);
+
+  const handleNextPage = useCallback(() => {
+    if (!editor || currentPageIndex >= pages.length - 1) return;
+    editor.setCurrentPage(pages[currentPageIndex + 1].id);
+  }, [editor, pages, currentPageIndex]);
 
   useEffect(() => {
     // Check for room ID in URL
@@ -236,6 +289,51 @@ export default function Editor({ tabName, initialData, initialImages, onDataLoad
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
+
+      {/* Floating Page Navigation Bar - Bottom Left */}
+      {pages.length > 0 && (
+        <div className="absolute bottom-20 left-4 z-[50] pointer-events-auto">
+          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md border border-orange-200/60 rounded-2xl shadow-lg shadow-orange-500/5 px-2 py-1.5">
+            {/* Previous Page */}
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPageIndex <= 0}
+              className="p-1.5 rounded-lg text-zinc-500 hover:bg-orange-50 hover:text-orange-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              title="Previous Page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {/* Page Indicator */}
+            <span className="px-2 text-xs font-semibold text-zinc-700 tabular-nums select-none min-w-[60px] text-center">
+              {currentPageIndex + 1} / {pages.length}
+            </span>
+
+            {/* Next Page */}
+            <button
+              onClick={handleNextPage}
+              disabled={currentPageIndex >= pages.length - 1}
+              className="p-1.5 rounded-lg text-zinc-500 hover:bg-orange-50 hover:text-orange-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              title="Next Page"
+            >
+              <ChevronRight size={16} />
+            </button>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-orange-200/60 mx-1" />
+
+            {/* Insert Page After Current */}
+            <button
+              onClick={handleInsertPageAfter}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all"
+              title="Insert a new page after this one"
+            >
+              <FilePlus size={14} />
+              <span className="hidden sm:inline">Insert Page</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Alert Modal */}
       {alertState.isOpen && (
